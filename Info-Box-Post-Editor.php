@@ -4,7 +4,7 @@ Plugin Name: Info Box on New Post/Page Editor
 Plugin URI: http://roesapps.com/2010/01/adding-a-reminder-box-to-add-post/
 Description: Add a text (reminder) box on the New/Edit Post editing page
 Author: Courtney Roes
-Version: 0.1
+Version: 0.1.1
 Author URI: http://www.RoesApps.com
 */   
    
