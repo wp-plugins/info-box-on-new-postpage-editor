@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Info Box on New Post/Page Editor
-Plugin URI: http://roesapps.com/2010/01/adding-a-reminder-box-to-add-post/
+Plugin URI: http://roesapps.com/tag/reminder-box/
 Description: Add a text (reminder) box on the New/Edit Post editing page
 Author: Courtney Roes
-Version: 0.1.1
+Version: 0.2
 Author URI: http://www.RoesApps.com
 */   
    
@@ -99,7 +99,12 @@ if (!class_exists('InfoBox')) {
             
             /*
             add_action("wp_head", array(&$this,"add_css"));
-            add_action('wp_print_scripts', array(&$this, 'add_js'));
+			*/
+			
+			add_action("admin_head", array(&$this,"InfoBox_add_css"));
+
+            /*
+			add_action('wp_print_scripts', array(&$this, 'add_js'));
             */
             
             //Filters
@@ -114,11 +119,31 @@ if (!class_exists('InfoBox')) {
 		function InfoBox_MakeBox() {
 		
 		  if( function_exists( 'add_meta_box' )) {
-			add_meta_box( 'InfoBox_MakeBoxID2', __( $this->options['InfoBox_Title'], 'InfoBox_textdomain' ), 
+			add_meta_box( 'InfoBox_MakeBoxID2', __( stripslashes($this->options['InfoBox_Title']), 'InfoBox_textdomain' ), 
 						array(&$this,'InfoBox_inner_custom_box'), 'post', 'side', 'high' );
-			add_meta_box( 'InfoBox_MakeBoxID2', __( $this->options['InfoBox_Title'], 'InfoBox_textdomain' ), 
+			add_meta_box( 'InfoBox_MakeBoxID2', __( stripslashes($this->options['InfoBox_Title']), 'InfoBox_textdomain' ), 
 						array(&$this,'InfoBox_inner_custom_box'), 'page', 'side', 'high' );
 		   }
+		}
+		
+		/* Adds the needed CSS to the header */
+		function InfoBox_add_css() {
+			
+			if ($this->options['InfoBox_TextColor']=="black") {
+				echo "<link rel=\"stylesheet\" href=\"". WP_PLUGIN_URL . "/info-box-on-new-postpage-editor/css/InfoBoxBlack.css\" type=\"text/css\" media=\"screen\" />";
+			} elseif ($this->options['InfoBox_TextColor']=="red") {
+				echo "<link rel=\"stylesheet\" href=\"". WP_PLUGIN_URL . "/info-box-on-new-postpage-editor/css/InfoBoxRed.css\" type=\"text/css\" media=\"screen\" />";
+			} elseif ($this->options['InfoBox_TextColor']=="blue") {
+				echo "<link rel=\"stylesheet\" href=\"". WP_PLUGIN_URL . "/info-box-on-new-postpage-editor/css/InfoBoxBlue.css\" type=\"text/css\" media=\"screen\" />";
+			} elseif ($this->options['InfoBox_TextColor']=="green") {
+				echo "<link rel=\"stylesheet\" href=\"". WP_PLUGIN_URL . "/info-box-on-new-postpage-editor/css/InfoBoxGreen.css\" type=\"text/css\" media=\"screen\" />";
+			} elseif ($this->options['InfoBox_TextColor']=="yellow") {
+				echo "<link rel=\"stylesheet\" href=\"". WP_PLUGIN_URL . "/info-box-on-new-postpage-editor/css/InfoBoxYellow.css\" type=\"text/css\" media=\"screen\" />";
+			};
+			//echo "<link rel=\"stylesheet\" href=\"". WP_PLUGIN_URL . "/info-box-on-new-postpage-editor/css/InfoBox.css\" type=\"text/css\" media=\"screen\" />";
+
+
+		
 		}
 		
 		/* Prints the inner fields for the custom post/page section */
@@ -130,7 +155,9 @@ if (!class_exists('InfoBox')) {
 			wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 		
 		  // The actual fields for data entry
-		  echo $this->options['InfoBox_Text'];
+		  echo '<div class="InfoBoxCSS">';
+		  echo stripslashes(strip_tags($this->options['InfoBox_Text'], '<br/> <b> <h1> <h2> <ul> <li> <ol>'));
+		  echo '</div>';
 		}
         
         
@@ -185,8 +212,9 @@ if (!class_exists('InfoBox')) {
         function admin_options_page() { 
             if($_POST['InfoBox_save']){
                 if (! wp_verify_nonce($_POST['_wpnonce'], 'InfoBox-update-options') ) die('Whoops! There was a problem with the data you posted. Please go back and try again.'); 
-                $this->options['InfoBox_Title'] = $_POST['InfoBox_Title'];                   
-                $this->options['InfoBox_Text'] = $_POST['InfoBox_Text'];
+                $this->options['InfoBox_Title'] = esc_attr(trim($_POST['InfoBox_Title']));                   
+                $this->options['InfoBox_Text'] = trim($_POST['InfoBox_Text']);
+				$this->options['InfoBox_TextColor'] = trim($_POST['InfoBox_TextColor']);
                                         
                 $this->saveAdminOptions();
                 
@@ -200,20 +228,29 @@ if (!class_exists('InfoBox')) {
                     <table width="100%" cellspacing="2" cellpadding="5" class="form-table"> 
                         <tr valign="top"> 
                             <th width="33%" scope="row"><?php _e('Box Title:', $this->localizationDomain); ?></th> 
-                            <td><input name="InfoBox_Title" type="text" id="InfoBox_Title" size="45" value="<?php echo $this->options['InfoBox_Title'] ;?>"/>
+                            <td><input name="InfoBox_Title" type="text" id="InfoBox_Title" size="45" value="<?php echo stripslashes($this->options['InfoBox_Title']) ;?>"/>
                         </td> 
                         </tr>
                         <tr valign="top"> 
                             <th width="33%" scope="row"><?php _e('Box Text:', $this->localizationDomain); ?></th> 
                             <td>
-                            <textarea name="InfoBox_Text" id="InputBox" cols="45" rows="5" ><?php echo $this->options['InfoBox_Text'] ;?></textarea>
+                            <textarea name="InfoBox_Text" id="InputBox" cols="45" rows="5" ><?php echo stripslashes($this->options['InfoBox_Text']) ;?></textarea>
                             </td> 
                         </tr>
                         <tr valign="top">
                         	<th width="33%" scope="row"><?php _e('Note:', $this->localizationDomain); ?></th>
                             <td>
-                            <strong>You may include basic html however do not include single quotes, double quotes or backslashes.  To get a carriage return to show up, insert &lt;br/&gt; in the text</strong>
+                            <strong>You may include &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;h1&gt;, &lt;h2&gt; and &lt;b&gt; tags only.  To get a carriage return to show up, insert &lt;br/&gt; in the text</strong>
                             </td>
+                        <tr>
+                        <tr valign="top">
+                        	<th width="33%" scope="row"><?php _e('Box Text Color:', $this->localizationDomain); ?></th>
+                            <td><input name="InfoBox_TextColor" type="radio" id="InfoBox_TextColor" value="black" checked="checked" <?php if ($this->options['InfoBox_TextColor']=="black") echo "checked=\"checked\""; ?> />
+                              <?php _e('Black', $this->localizationDomain); ?> <input name="InfoBox_TextColor" type="radio" id="InfoBox_TextColor" value="red" <?php if ($this->options['InfoBox_TextColor']=="red") echo "checked=\"checked\""; ?> />
+                              <?php _e('Red', $this->localizationDomain); ?> <input name="InfoBox_TextColor" type="radio" id="InfoBox_TextColor" value="blue" <?php if ($this->options['InfoBox_TextColor']=="blue") echo "checked=\"checked\""; ?> />
+                              <?php _e('Blue', $this->localizationDomain); ?> <input name="InfoBox_TextColor" type="radio" id="InfoBox_TextColor" value="green" <?php if ($this->options['InfoBox_TextColor']=="green") echo "checked=\"checked\""; ?> />
+                              <?php _e('Green', $this->localizationDomain); ?> <input name="InfoBox_TextColor" type="radio" id="InfoBox_TextColor" value="yellow" <?php if ($this->options['InfoBox_TextColor']=="yellow") echo "checked=\"checked\""; ?> />
+                              <?php _e('Yellow', $this->localizationDomain); ?></td>
                         <tr>
                             <th colspan=2><input type="submit" name="InfoBox_save" value="Save" /></th>
                         </tr>

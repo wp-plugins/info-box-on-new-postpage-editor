@@ -3,8 +3,8 @@ Contributors: hcroes
 Donate link: http://RoesApps.com
 Tags: post, page, reminder box, editor, add, edit
 Requires at least: 2.9
-Tested up to: 2.9.1
-Stable tag: 0.1.1
+Tested up to: 2.9.2
+Stable tag: 0.2
 
 Adds a text box to the add/edit post/page allowing you to remind authors of information while they write
 
@@ -30,6 +30,11 @@ Support can be found at http://roesapps.com/forums/
 2. Reminder box on Add Post form.
 
 == Changelog ==
+
+=0.2=
+-Added security to minimize risk of bad code going into the fields
+-Removed the restriction on having quotes, double quotes, slashes, etc. in the fields
+-Added the ability to have the text in the reminder box be either black, red, blue, green or yellow
 
 =0.1.1=
 Corrected Plugin URL
