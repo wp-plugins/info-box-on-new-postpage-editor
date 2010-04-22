@@ -1,0 +1,13 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.InfoBoxCSS {
+	color: #CC9900;
+}
+.InfoBoxCSS h2{
+	color: #CC9900;
+}
+.InfoBoxCSS li{
+	list-style-type:circle;
+	margin-left:25px;
+}
